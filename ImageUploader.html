@@ -1,0 +1,75 @@
+<html>
+
+<head>
+    <title>jsReport File Uploader</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+        window.onload = function () {
+            if (window.File && window.FileList && window.FileReader) {
+                var filesInput = document.getElementById("files");
+                filesInput.addEventListener("change", function (event) {
+                    var files = event.target.files; 
+                    for (var i = 0; i < files.length; i++) {
+                        var file = files[i];
+                        encodeImageFileAsURL(file);
+                    }
+                });
+            }
+            console.log("Finished!!!");
+        }
+
+    </script>
+
+    <script>
+        function encodeImageFileAsURL(file) {
+            var output = document.getElementById("result");
+            var reader = new FileReader();
+            var jsonData = "{";
+            reader.onloadend = function () {
+                jsonData += "\"name\":\"" + file.name +"\"";
+                jsonData += ",\"tags\":[{\"shortid\":\"SHORTIDHERE\"},{\"shortid\":\"SHORTIDHERE\"}]"
+                jsonData += ",\"content\":\"" +  reader.result.replace(/^data:image\/[a-z]+;base64,/, "") + "\""
+                jsonData += "}";
+                posttoJsReport(jsonData, file.name);
+
+            }
+            reader.readAsDataURL(file);
+        }
+    </script>
+
+    <script>
+        function posttoJsReport(data, filename) {
+     
+            $.ajax({
+                type: "POST",
+  
+            url: "https://YOURURL/odata/assets",              
+              data: data,
+                async: false,
+
+                headers: {
+                    "Authorization": "Basic " + btoa("username:password")
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function () {
+                console.log(filename + '  done')
+                }
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <header>
+        <h1>jsReport image uploader</h1>
+    </header>
+    <article>
+        <label for="files">Select multiple files: </label>
+        <input id="files" type="file" multiple />
+        <output id="result" />
+    </article>
+</body>
+
+</html>
